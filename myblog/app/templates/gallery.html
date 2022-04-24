@@ -3,8 +3,8 @@ content %}
 <h1>Image Gallery</h1>
   <div class="cx" style="background-color:#fff;">
     {% for path in paths %}
-    <img src="wsl%24/Ubuntu-20.04/home/ductran/myblog/uploads/photos/{{path}}" height=200 width=200 onclick="clicked_img(this)" >
-    {% endfor %}
+    <img src="{{path}}" height=200 width=200 onclick="clicked_img(this)" >
+    {% endfor%}
   </div>
 </body>
 {% endblock %}

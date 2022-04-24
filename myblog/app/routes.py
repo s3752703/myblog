@@ -188,13 +188,11 @@ def upload_image():
         file_url = None
     return render_template("upload_image.html",title="Upload Image",form = form)
     """
-
     msg = ""
     if request.method == 'POST':
         img = request.files['file']
         if img:
             filename = secure_filename(img.filename)
-            
             img.save(filename)  
             if filename != '':
                 file_ext = os.path.splitext(filename)[1]
@@ -206,7 +204,7 @@ def upload_image():
                     Bucket = BUCKET_NAME,
                     Filename=filename,
                     Key = filename
-                )
+            )
             msg = "Upload Done ! "
             image = Images(user_id = current_user.id,image_uri=filename)
             db.session.add(image)
@@ -215,15 +213,18 @@ def upload_image():
             
     return render_template("upload_image.html",msg =msg)
 
+
 @app.route('/gallery',methods=['GET'])
 @login_required
 def gallery():
     imgs = Images.query.filter_by(user_id=current_user.id)
     imgs_paths=[]
     for img in imgs:
-        imgs_paths.append(img.image_uri)
+        imgs_paths.append(app.config['S3_LOCATION']+img.image_uri)
     for img_path in imgs_paths:
         print(img_path)
+   
+    
     return render_template("gallery.html",title="Gallery",paths = imgs_paths)
 
 

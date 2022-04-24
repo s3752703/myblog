@@ -3,7 +3,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):
     SECRET_KEY = os.environ.get('key') or 'ductran123'
-    SQLALCHEMY_DATABASE_URI = "mysql+pymysql://admin:tranduc123@habitmakr.cq4hhb9aoctr.us-east-1.rds.amazonaws.com:3306/innodb"
+    SQLALCHEMY_DATABASE_URI =  os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'myblog.db')
     UPLOADED_PHOTOS_DEST = 'uploads/photos'
     S3_BUCKET = 'mybloghost'
     S3_KEY = "ASIAR6R4OLQMPINJURP3"
