@@ -1,8 +1,11 @@
 from io import StringIO
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField,TextAreaField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField,TextAreaField,FileField
+from flask_wtf.file import FileField,FileRequired,FileAllowed
+from app import photos
 from wtforms.validators import DataRequired, Email, EqualTo,ValidationError, Length
 from app.models import User
+from app.models import Images
 import re
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -32,6 +35,7 @@ class RegistForm(FlaskForm):
             raise ValidationError('Weak password. Too short')
         elif not re.search("[a-z]", password) or not re.search("[A-Z]", password) or not re.search("[0-9]", password) or re.search("\s", password) :
             raise ValidationError('Password must contain lowercase letter, uppercase letter, number 0-9 and no space')
+
 class ProfileEditingForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     aboutMe = TextAreaField('About me', validators=[Length(min=0, max=200)])
@@ -52,9 +56,14 @@ class ProfileEditingForm(FlaskForm):
             user = User.query.filter_by(email = self.email.data).first()
             if user is not None:
                 raise ValidationError('Email exist, please chose a different one')
-    
+
 class EmptyForm(FlaskForm):
     submit = SubmitField('Submit')
+
+class UploadImageForm(FlaskForm):
+    photo = FileField(validators=[FileAllowed(photos, 'Image only!'), FileRequired('File was empty!')])
+    submit = SubmitField('Upload')
+
 class PostingForm(FlaskForm):
     post = TextAreaField('Type here',validators=[DataRequired(),Length(min=1,max=200)])
     submit = SubmitField('Submit')

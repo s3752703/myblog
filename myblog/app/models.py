@@ -26,6 +26,8 @@ class User(db.Model, UserMixin):
         secondaryjoin = (followers.c.followed_id == id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic'
     )
+    images = db.relationship('Images',backref='author',lazy='dynamic')
+    
     def __repr__(self):
         return '<User {}>'.format(self.username)
     def set_p(self,password):
@@ -68,7 +70,10 @@ class Post(db.Model):
 
     def __repr__(self):
         return '<Post {}>'.format(self.body)
-
+class Images(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    image_uri = db.Column(db.String(400))
 @login.user_loader
 def load_u(id):
     return User.query.get(int(id))

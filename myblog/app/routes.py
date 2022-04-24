@@ -1,10 +1,10 @@
 from ast import Not
 from distutils.log import Log
 from flask import render_template, flash, redirect, url_for,request
-from app import app,db
-from app.forms import LoginForm, RegistForm , ProfileEditingForm, PostingForm
+from app import app,db,photos
+from app.forms import LoginForm, RegistForm , ProfileEditingForm, PostingForm,UploadImageForm
 from flask_login import current_user,login_user,logout_user,login_required
-from app.models import User,Post
+from app.models import User,Post, Images
 from werkzeug.urls import url_parse
 from datetime import datetime
 from app.forms import EmptyForm
@@ -156,3 +156,30 @@ def explore():
     prev_url = url_for('explore', page=posts.prev_num) \
         if posts.has_prev else None
     return render_template("explore.html", title='Explore', posts=posts.items,next_url=next_url, prev_url=prev_url)
+
+@app.route('/upload_image',methods=['GET','POST'])
+@login_required
+def upload_image():
+    form = UploadImageForm()
+    if form.validate_on_submit():
+        filename = photos.save(form.photo.data)
+        image = Images(user_id = current_user.id,image_uri=filename)
+        db.session.add(image)
+        db.session.commit()
+        return redirect(url_for('index'))
+    else:
+        file_url = None
+    return render_template("upload_image.html",title="Upload Image",form = form)
+
+@app.route('/gallery',methods=['GET','POST'])
+@login_required
+def gallery():
+    imgs = Images.query.filter_by(user_id=current_user.id)
+    imgs_paths=[]
+    for img in imgs:
+        imgs_paths.append(img.image_uri)
+    for img_path in imgs_paths:
+        print(img_path)
+    return render_template("gallery.html",title="Gallery",paths = imgs_paths)
+
+
