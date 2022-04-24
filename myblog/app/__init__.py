@@ -10,8 +10,11 @@ app = Flask(__name__)
 app.config.from_object(Config)
 #app.config['UPLOADED_PHOTOS_DEST'] = 'uploads/photos'
 db = SQLAlchemy(app)
+
+#this configure is for local hosting we won't be using this
 photos = UploadSet('photos', IMAGES)
 configure_uploads(app, photos)
+
 migrate = Migrate(app, db)
 login = LoginManager(app)
 login.login_view = 'login'
