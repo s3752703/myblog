@@ -174,20 +174,6 @@ def explore():
 @app.route('/upload_image',methods=['GET','POST'])
 @login_required
 def upload_image():
-    """
-    form = UploadImageForm()
-    if form.validate_on_submit():
-        
-        #filename = photos.save(form.photo.data)
-        filename = form.photo.data
-        image = Images(user_id = current_user.id,image_uri=filename)
-        db.session.add(image)
-        db.session.commit()
-        return redirect(url_for('index'))
-    else:
-        file_url = None
-    return render_template("upload_image.html",title="Upload Image",form = form)
-    """
     msg = ""
     if request.method == 'POST':
         img = request.files['file']
@@ -221,6 +207,7 @@ def upload_image():
             image = Images(user_id = current_user.id,image_uri=hashFileName)
             db.session.add(image)
             db.session.commit()
+            os.remove(hashFileName)
             
             
     return render_template("upload_image.html",msg =msg)
