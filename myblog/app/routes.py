@@ -11,7 +11,7 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 from app.forms import EmptyForm
 import boto3
-
+import hashlib
 s3_client = boto3.client('s3', aws_access_key_id = app.config['S3_KEY'],
                         aws_secret_access_key= app.config['S3_SECRET'],
                         aws_session_token = app.config['S3_SESSION_TOKEN']
@@ -193,20 +193,32 @@ def upload_image():
         img = request.files['file']
         if img:
             filename = secure_filename(img.filename)
-            img.save(filename)  
+            file_ext = ''
+
+            hashFileName= ''
             if filename != '':
                 file_ext = os.path.splitext(filename)[1]
                 if file_ext not in app.config['UPLOAD_EXTENSIONS']:
                     flash("Image only")
                     return render_template("upload_image.html",msg ="Image only!")
-         
+            
+            temp = Images.query.all()
+            if(len(temp)==0):
+                hashFileName = hashlib.md5((filename).encode())
+                print(hashFileName.hexdigest())
+            else:
+                last = temp[-1]
+                hashFileName = hashlib.md5((last.image_uri+filename).encode())
+                print(hashFileName.hexdigest())
+            hashFileName = hashFileName.hexdigest()+file_ext
+            img.save(hashFileName)  
             s3_client.upload_file(
                     Bucket = BUCKET_NAME,
-                    Filename=filename,
-                    Key = filename
+                    Filename=hashFileName,
+                    Key = hashFileName
             )
             msg = "Upload Done ! "
-            image = Images(user_id = current_user.id,image_uri=filename)
+            image = Images(user_id = current_user.id,image_uri=hashFileName)
             db.session.add(image)
             db.session.commit()
             
